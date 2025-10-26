@@ -1,0 +1,28 @@
+{
+  "name": "@future-flux/contracts",
+  "version": "0.1.0",
+  "description": "Smart contracts for Future Flux DEX",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.js",
+    "node": "hardhat node",
+    "clean": "hardhat clean"
+  },
+  "keywords": [
+    "smart-contracts",
+    "solidity",
+    "dex"
+  ],
+  "author": "Future Flux Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.19.0",
+    "ethers": "^6.9.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0"
+  }
+}
