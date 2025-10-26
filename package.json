@@ -1,0 +1,31 @@
+{
+  "name": "future-flux",
+  "version": "0.1.0",
+  "description": "Future Flux - DEX Platform for Real World Assets (RWA)",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "clean": "rm -rf node_modules packages/*/node_modules",
+    "install:all": "npm install",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "dev": "npm run dev --workspaces --if-present"
+  },
+  "keywords": [
+    "defi",
+    "dex",
+    "rwa",
+    "real-world-assets",
+    "blockchain",
+    "ethereum"
+  ],
+  "author": "Future Flux Team",
+  "license": "MIT",
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
