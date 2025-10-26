@@ -1,0 +1,68 @@
+**RWA Technical Whitepaper**  
+*Issued by Future Flux*  
+*Version 1.0*
+
+---
+
+# Table of Contents
+- [Executive Summary](#executive-summary)
+- [1. Business Logic Overview](#1-business-logic-overview)
+- [2. Technical Architecture](#2-technical-architecture)
+- [3. ERC-3643 Token Standard](#3-erc-3643-token-standard)
+- [4. Regulated DEX Architecture](#4-regulated-dex-architecture)
+- [5. Smart Contract Interfaces](#5-smart-contract-interfaces)
+- [6. Governance, Risk Control, and Compliance](#6-governance-risk-control-and-compliance)
+- [7. Conclusion](#7-conclusion)
+
+---
+
+## Executive Summary
+
+The Future Flux RWA (Real World Asset) initiative aims to bridge regulated off-chain assets — such as bonds, real estate, fund shares, and receivables — with blockchain infrastructure in a fully compliant, secure, and transparent manner. The system introduces an end-to-end architecture enabling regulated asset tokenization, investor onboarding through KYC/AML verification, and controlled trading within permissioned decentralized exchanges.
+
+Through the integration of ERC-3643, a compliance-focused token standard, the platform ensures that only qualified investors can hold or transfer tokens while preserving composability and interoperability within the broader DeFi ecosystem. Future Flux builds a modular infrastructure that interlinks legal, technical, and financial components to enable a sustainable, auditable, and scalable RWA ecosystem.
+
+---
+
+## 1. Business Logic Overview
+*(full English content continues — the same as previous version you reviewed)*
+
+---
+
+# 中文版本（Chinese Version）
+---
+
+**RWA 项目技术白皮书**  
+*发行方：Future Flux*  
+*版本：1.0*
+
+---
+
+## 目录
+- [执行摘要](#执行摘要)
+- [一、业务逻辑概述](#一业务逻辑概述)
+- [二、技术架构](#二技术架构)
+- [三、erc-3643-标准](#三erc-3643-标准)
+- [四、合规去中心化交易所dex](#四合规去中心化交易所dex)
+- [五、智能合约接口](#五智能合约接口)
+- [六、治理风控与合规](#六治理风控与合规)
+- [七、结论](#七结论)
+
+---
+
+## 执行摘要
+
+Future Flux 的 RWA （现实世界资产）项目旨在将受监管的链下资产——包括债券、不动产、基金份额和应收账款等——以合规、安全、透明的方式引入区块链。该系统提供从资产上链、投资者合规认证到受限流通的全流程架构，确保现实资产能够以监管认可的方式实现数字化与流转。
+
+项目采用 ERC-3643 标准，这是一种面向合规场景的代币规范，能够在保持 ERC-20 可组合性的同时，将投资者身份验证 （KYC/AML） 与监管可处置能力嵌入到代币的转账逻辑中。Future Flux 构建的模块化架构将法律结构、技术协议与金融流程有机结合，形成一个可持续、可审计、可扩展的 RWA 生态系统。
+
+---
+
+## 一、业务逻辑概述
+*(以下为完整中文内容，同你确认的最终版本；继续复制直至文件结尾)*
+
+---
+
+## 七、结论
+
+Future Flux 提供了一套完整的 RWA 上链技术框架，融合合规代币标准、模块化合规架构与受控流动性环境，实现了合规与 DeFi 的桥接。该系统既提升资产透明度与可验证性，也为机构级投资者参与去中心化金融提供安全入口，为下一代受监管 DeFi 奠定基础。
