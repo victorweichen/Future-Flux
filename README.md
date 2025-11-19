@@ -1,10 +1,11 @@
 # Future-Flux
 
-##This is the starting point of FutureFlux RWA
+This is the starting point of FutureFlux RWA
 
 
 
 ###Who Is FutureFlux For?
+---
 
 ###Architecture
 
