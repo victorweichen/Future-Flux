@@ -44,7 +44,7 @@ Want to get started right away? Check out our Quick Start Guide.
 
 ---
 
-### Discord: Join our Docker community for support, updates, and discussions: 
+*** Discord: Join our Discord community for support, updates, and discussions: 
 
 ---
 
