@@ -43,7 +43,7 @@ Want to get started right away? Check out our Quick Start Guide.
 ### Community & Support
 
 
-*** Discord: Join our Discord community for support, updates, and discussions: 
+***Discord***: Join our Discord community for support, updates, and discussions: 
 
 ---
 
