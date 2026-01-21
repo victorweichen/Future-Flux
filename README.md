@@ -3,7 +3,6 @@
 This is the starting point of FutureFlux RWA
 
 
-
 ### Who Is FutureFlux For?
 ---
 
@@ -42,6 +41,8 @@ Want to get started right away? Check out our Quick Start Guide.
 
 ### Community & Support
 
+Join the discussion:
+👉 https://github.com/victorweichen/Future-Flux/discussions
 
 ***Discord***: Join our Discord community for support, updates, and discussions: 
 
