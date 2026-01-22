@@ -104,7 +104,7 @@ Get started with FutureFlux in minutes:
 
 #### Prerequisites
 
-- Node.js v16+ and npm/yarn
+- Node.js v18+ and npm/yarn
 - Ethereum wallet (MetaMask or similar)
 - Access to Ethereum testnet (Goerli/Sepolia) or mainnet
 - Basic understanding of smart contracts and ERC-3643
@@ -133,9 +133,9 @@ npm test
 #### Network Configuration
 
 Add the following to your wallet for testnet deployment:
-- Network: Ethereum Goerli / Sepolia
+- Network: Ethereum Sepolia
 - RPC URL: [Your preferred RPC endpoint]
-- Chain ID: 5 (Goerli) / 11155111 (Sepolia)
+- Chain ID: 11155111
 
 **Note**: Smart contract implementation is currently in development. Check back for deployment scripts and contract addresses.
 
@@ -170,8 +170,8 @@ await tokenContract.mint(investorAddress, amount);
 #### For Developers
 
 ```javascript
-// Example: Integrate with FutureFlux DEX
-import { FutureFluxDEX } from '@futureflux/dex';
+// Example: Integrate with FutureFlux DEX (package name is illustrative)
+import { FutureFluxDEX } from '@futureflux/dex'; // Future package
 
 const dex = new FutureFluxDEX({
   provider: web3Provider,

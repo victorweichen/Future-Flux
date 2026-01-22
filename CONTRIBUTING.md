@@ -40,7 +40,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 
 Before contributing, ensure you have:
 
-- Node.js v16 or higher installed
+- Node.js v18 or higher installed
 - Git installed and configured
 - A GitHub account
 - Basic understanding of Ethereum and smart contracts
