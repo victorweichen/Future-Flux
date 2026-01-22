@@ -52,9 +52,118 @@ This whitepaper adopts the minimalist view:
 
 ---
 
-## 2. Design Philosophy
+## 2. Motivation and Target Use Cases
 
-### 2.1 RWA Is Not a Primitive
+### 2.1 Motivation
+
+Traditional real-world asset (RWA) structures rely heavily on:
+
+• Manual reconciliation
+• Opaque intermediaries
+• Off-chain record keeping
+• Trust-based settlement processes
+
+These systems suffer from:
+
+• Settlement delays
+• Limited transparency
+• High operational overhead
+• Poor auditability
+• Fragmented ownership records
+
+The objective of this protocol is to introduce a **standardized on-chain settlement and control layer** for off-chain economic claims, where:
+
+• Legal ownership remains off-chain
+• Economic rights are represented on-chain
+• Settlement logic is deterministic
+• All state transitions are auditable
+
+By moving **accounting, governance, and settlement logic on-chain**, the protocol reduces counterparty risk and operational friction while preserving legal enforceability in the real world.
+
+---
+
+### 2.2 Supported Transaction Models
+
+The protocol is designed to support **generalized off-chain economic claims**, including but not limited to:
+
+#### 1. Receivables Financing
+
+• Tokenized invoice claims
+• Secondary trading of receivables
+• Automated repayment distribution
+• Default-triggered settlement
+
+#### 2. Revenue and Yield Sharing
+
+• Mining yield participation
+• Infrastructure revenue splits
+• Protocol fee sharing
+• Performance-based payouts
+
+#### 3. Structured Payment Obligations
+
+• Installment contracts
+• Milestone-based releases
+• Escrow-controlled disbursement
+• Conditional payment logic
+
+#### 4. Asset-Linked Settlement Claims
+
+• Real estate rental income
+• Energy production credits
+• Compute and bandwidth usage settlements
+• Licensing royalty flows
+
+#### 5. Collateralized RWA Instruments
+
+• Overcollateralized debt structures
+• On-chain liquidation rules
+• Governance-controlled recovery flows
+• Risk parameter enforcement
+
+---
+
+### 2.3 Role of Smart Contracts
+
+The Escrow Vault and settlement contracts provide:
+
+• Automated fund distribution
+• Transparent accounting
+• Programmable default handling
+• Governance-controlled rule updates
+• Immutable event logs for auditing
+
+This architecture enables:
+
+• Trust-minimized settlement
+• Real-time transparency
+• Reduced operational overhead
+• Compliance-friendly reporting
+
+---
+
+### 2.4 Design Principles
+
+The system is built around the following principles:
+
+• **Separation of concerns**
+– Legal ownership off-chain
+– Economic logic on-chain
+
+• **Deterministic enforcement**
+– Smart contracts replace manual processes
+
+• **Auditability**
+– All state changes are on-chain and verifiable
+
+• **Regulatory compatibility**
+– Legal frameworks remain respected
+
+---
+
+## 3. Design Philosophy
+
+### 3.1 RWA Is Not a Primitive
 
 RWA is not a native blockchain primitive.
 It is a **composition of primitives + legal fallback**.
@@ -66,7 +175,7 @@ Therefore:
 
 ---
 
-### 2.2 Deterministic Failure Is a Feature
+### 3.2 Deterministic Failure Is a Feature
 
 Defaults, insolvencies, and oracle failures are not exceptional cases.
 
@@ -85,9 +194,9 @@ This protocol explicitly defines:
 
 ---
 
-## 3. System Overview
+## 4. System Overview
 
-### 3.1 High-Level Architecture
+### 4.1 High-Level Architecture
 
 The protocol consists of:
 
@@ -99,13 +208,13 @@ The AMM is treated as a **price discovery and liquidity interface**, not a settl
 
 ---
 
-## 4. Core Smart Contract Primitives
+## 5. Core Smart Contract Primitives
 
 The following contracts implement the fulldecent-inspired settlement model.
 
 ---
 
-### 4.1 Escrow Vault Contract
+### 5.1 Escrow Vault Contract
 
 **Purpose:**
 Hold and control assets that back RWA tokens.
@@ -120,9 +229,46 @@ Hold and control assets that back RWA tokens.
 
 > No actor can unilaterally extract value from escrow.
 
+### Clarification on Asset Custody and Vault Architecture
+
+The real-world assets (RWAs) backing the protocol (including but not limited to mining revenue streams, contractual claims, and off-chain cashflows) are **not custodied on-chain**.
+Legal ownership, contractual enforceability, and regulatory compliance remain strictly **off-chain**, governed by applicable legal frameworks and counterparties.
+
+The *Escrow Vault Contract* operates exclusively as an **on-chain smart contract system** responsible for:
+
+• Recording token issuance and redemption events
+• Enforcing programmable transfer restrictions
+• Implementing governance and settlement logic
+• Managing access to tokenized economic rights
+
+The vault **does not directly custody** the physical assets or legal claims themselves.
+
+For the avoidance of doubt, the term **"on-chain vault"** refers solely to:
+
+> A deterministic smart contract framework that governs the lifecycle, accounting, and rule enforcement of RWA-backed tokens —
+> **not** the physical custody of the underlying real-world assets.
+
+Accordingly, the system architecture is structured as follows:
+
+| Functional Layer            | Location  |
+| --------------------------- | --------- |
+| Legal asset ownership       | Off-chain |
+| Cashflow generation         | Off-chain |
+| Token issuance & settlement | On-chain  |
+| Governance & accounting     | On-chain  |
+
+This separation of responsibilities follows industry-standard RWA implementations, including:
+
+• Tokenized treasury products
+• SPV-based real estate structures
+• Revenue participation instruments
+
+This design ensures transparency, auditability, and deterministic enforcement on-chain,
+while preserving legal validity and regulatory compliance off-chain.
+
 ---
 
-### 4.2 Conditional Settlement Engine
+### 5.2 Conditional Settlement Engine
 
 **Purpose:**
 Define when and how settlement occurs.
@@ -149,7 +295,7 @@ All conditions are:
 
 ---
 
-### 4.3 Mint / Burn Controller
+### 5.3 Mint / Burn Controller
 
 RWA tokens are treated as **conditional claims**, not assets.
 
@@ -163,7 +309,7 @@ This ensures:
 
 ---
 
-### 4.4 Oracle Health Module
+### 5.4 Oracle Health Module
 
 Oracles are treated as **trusted inputs**, not truth.
 
@@ -178,9 +324,9 @@ Instead, it triggers **protective mode**.
 
 ---
 
-## 5. Failure Handling Framework
+## 6. Failure Handling Framework
 
-### 5.1 State Machine
+### 6.1 State Machine
 
 The protocol operates under explicit states:
 
@@ -195,7 +341,7 @@ State transitions are rule-based and observable on-chain.
 
 ---
 
-### 5.2 Waterfall (Loss Ordering)
+### 6.2 Waterfall (Loss Ordering)
 
 When assets are insufficient, losses are applied in a predefined order:
 
@@ -213,7 +359,7 @@ This ordering is:
 
 ---
 
-### 5.3 Auction (Price Discovery Under Stress)
+### 6.3 Auction (Price Discovery Under Stress)
 
 Liquidations do not use AMMs.
 
@@ -231,7 +377,7 @@ This prevents:
 
 ---
 
-### 5.4 Haircut (Proportional Loss Allocation)
+### 6.4 Haircut (Proportional Loss Allocation)
 
 If total claims exceed available assets:
 
@@ -247,11 +393,11 @@ No first-come-first-served behavior is permitted.
 
 ---
 
-### 5.5 Restructuring (Post-Default Continuity)
+### 6.5 Restructuring (Post-Default Continuity)
 
 Uncovered claims are converted into **restructured tokens** representing:
 
-* Future revenue participation
+* Participation in **off-chain economic claims**, including but not limited to revenue streams, contractual receivables, asset-linked yield, settlement claims, and structured payment obligations.
 * Recovery proceeds
 * External recapitalization upside
 
@@ -263,9 +409,191 @@ This allows:
 
 ---
 
-## 6. DEX Integration
+### 6.6 Failure Scenario Walkthrough
 
-### 6.1 Forked Uniswap v4 Role
+This section demonstrates how the protocol behaves **step-by-step** under real failure conditions, using the mechanisms defined in Chapter 6.
+
+---
+
+### Scenario A — Oracle Failure / Manipulation
+
+**Trigger**
+
+* Oracle price deviates beyond predefined threshold
+* Heartbeat timeout OR cross-oracle mismatch detected
+
+**System Response**
+
+1. State transitions:
+   `NORMAL → WARNING`
+
+2. Router Guards activate:
+
+   * New position opening disabled
+   * Large position size throttled
+
+3. If anomaly persists > T₁:
+
+   * State transitions:
+     `WARNING → PROTECT`
+
+4. In PROTECT:
+
+   * Trading halted
+   * Positions frozen
+   * AMM pricing ignored
+   * Oracle feed no longer trusted
+
+5. Settlement preparation:
+
+   * Auction scheduled at T₁ + Δ
+   * Assets queued for liquidation
+
+**Resolution**
+
+6. On-chain auction executed:
+
+   * Competitive bidding
+   * Clearing price determined by market
+   * Final price is immutable
+
+7. Settlement:
+
+   * Waterfall applied
+   * If shortfall exists → haircut executed
+
+**Outcome**
+
+* No forced liquidation via AMM
+* No oracle-based price cascade
+* Losses are mechanical and transparent
+
+---
+
+### Scenario B — Issuer Default
+
+**Trigger**
+
+* Issuer fails to deliver off-chain cash flow
+* Covenant breach confirmed
+* Grace period expires
+
+**System Response**
+
+1. State transitions:
+   `NORMAL → WARNING → DEFAULT`
+
+2. Default actions:
+
+   * Issuer margin seized
+   * Collateral unlocked for liquidation
+
+3. Auction phase:
+
+   * Collateral sold via periodic auctions
+   * Clearing price publicly determined
+
+**Loss Allocation**
+
+4. Waterfall applied in strict order:
+
+   1. Protocol reserves
+   2. Issuer margin
+   3. Insurance fund
+   4. Liquidity buffers
+   5. Token holder haircut
+
+5. If assets insufficient:
+
+   * Proportional haircut executed
+   * No priority racing
+   * No governance override
+
+**Post-Default**
+
+6. Uncovered claims:
+
+   * Converted into **restructured tokens**
+   * Represent off-chain recovery rights
+
+**Outcome**
+
+* Default is contained
+* Contagion isolated
+* Losses distributed predictably
+
+---
+
+### Scenario C — Market Crash (-40% Overnight)
+
+**Trigger**
+
+* Reference index gaps down > stress threshold
+* Volatility spike detected
+
+**System Response**
+
+1. State transitions:
+   `NORMAL → WARNING`
+
+2. Stress throttling:
+
+   * Position size limits
+   * Funding rate clamps
+   * Trading cadence slowed
+
+3. If drawdown deepens:
+
+   * `WARNING → PROTECT`
+
+4. Protective mode:
+
+   * AMM bypassed
+   * Auction-only liquidation
+   * Oracle feeds de-prioritized
+
+**Settlement**
+
+5. Auctions executed in batches:
+
+   * Real price discovery
+   * No sandwiching
+   * No MEV priority
+
+6. Waterfall applied
+
+7. Haircut if required
+
+**Outcome**
+
+* No death spiral
+* LPs protected from reflexive losses
+* System survives extreme volatility
+
+---
+
+### Design Invariant
+
+Across all scenarios:
+
+* No governance intervention
+* No discretionary override
+* No hidden bailouts
+
+All outcomes are:
+
+* Predefined
+* Transparent
+* Enforced by contract
+
+> **Failure is not avoided.
+> It is engineered.**
+
+---
+
+## 7. DEX Integration
+
+### 7.1 Forked Uniswap v4 Role
 
 The AMM is used exclusively for:
 
@@ -281,7 +609,7 @@ It does **not**:
 
 ---
 
-### 6.2 Router Guards
+### 7.2 Router Guards
 
 All swaps involving RWA tokens pass through:
 
@@ -291,7 +619,7 @@ All swaps involving RWA tokens pass through:
 
 ---
 
-## 7. Compliance as a Non-Core Layer
+## 8. Compliance as a Non-Core Layer
 
 Compliance mechanisms (KYC, whitelists, jurisdiction filters):
 
@@ -306,9 +634,9 @@ This separation ensures:
 
 ---
 
-## 8. Security and Governance
+## 9. Security and Governance
 
-### 8.1 Minimal Governance Surface
+### 9.1 Minimal Governance Surface
 
 Governance can:
 
@@ -323,7 +651,7 @@ Governance cannot:
 
 ---
 
-### 8.2 Upgrade Safety
+### 9.2 Upgrade Safety
 
 All upgrades:
 
@@ -333,19 +661,59 @@ All upgrades:
 
 ---
 
-## 9. Conclusion
+## 10. Conclusion
 
-This protocol does not attempt to make RWA “trustless” in an absolute sense.
+This protocol is not designed to make Real-World Assets fully trustless.
 
-Instead, it makes trust:
+Instead, it deliberately minimizes trust and **conpresses discretion out of settlement**.
 
-* Explicit
-* Minimized
-* Non-discretionary at settlement time
+We separate three fundamentally different concerns:
 
-By combining a battle-tested AMM with deterministic settlement primitives, this design offers a DEX where RWA trading behaves predictably not only when things go right—but especially when they go wrong.
+* **Pricing** — handled by a standard AMM
+* **Risk resolution** — enforced by deterministic settlement primitives
+* **Compliance** — implemented as a modular, replaceable boundary layer
+
+By doing so, we achieve something rare in DeFi:
+
+> **Predictable outcomes when markets break.**
+
+No governance override.
+No human discretion.
+No “emergency” exceptions.
+
+Defaults are not hidden.
+They are **predefined, transparent, and mechanically enforced.**
+
+This architecture is built for:
+
+* Institutions that need **auditability**
+* Liquidity providers who demand **rule-based risk**
+* Issuers who require **regulatory adaptability without protocol capture**
+
+### What This Enables
+
+* A neutral settlement layer for structured RWA products
+* Composable compliance modules across jurisdictions
+* Secondary markets that behave rationally under stress
+* Capital formation without governance capture risk
+
+### What Comes Next
+
+Future development will focus on:
+
+* Multi-oracle arbitration frameworks
+* Advanced stress throttling mechanisms
+* Jurisdiction-specific compliance adapters
+* Permissionless issuer onboarding pipelines
 
 ---
+
+We do not claim to eliminate default risk.
+
+We make it **deterministic.**
+
+And in financial systems,
+**determinism is trust.**
 
 ## Appendix A: Design Maxim
 
