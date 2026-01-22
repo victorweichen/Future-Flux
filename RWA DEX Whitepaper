@@ -345,11 +345,11 @@ State transitions are rule-based and observable on-chain.
 
 When assets are insufficient, losses are applied in a predefined order:
 
-1. Protocol reserves
-2. Issuer collateral / margin
-3. Insurance funds
-4. Liquidity buffers (if applicable)
-5. Token holder haircut
+i. Protocol reserves
+ii. Issuer collateral / margin
+iii. Insurance funds
+iv. Liquidity buffers (if applicable)
+v. Token holder haircut
 
 This ordering is:
 
@@ -424,40 +424,40 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
 
 **System Response**
 
-1. State transitions:
+i. State transitions:
    `NORMAL → WARNING`
 
-2. Router Guards activate:
+ii. Router Guards activate:
 
    * New position opening disabled
    * Large position size throttled
 
-3. If anomaly persists > T₁:
+iii. If anomaly persists > T₁:
 
    * State transitions:
      `WARNING → PROTECT`
 
-4. In PROTECT:
+iv. In PROTECT:
 
    * Trading halted
    * Positions frozen
    * AMM pricing ignored
    * Oracle feed no longer trusted
 
-5. Settlement preparation:
+v. Settlement preparation:
 
    * Auction scheduled at T₁ + Δ
    * Assets queued for liquidation
 
 **Resolution**
 
-6. On-chain auction executed:
+vi. On-chain auction executed:
 
    * Competitive bidding
    * Clearing price determined by market
    * Final price is immutable
 
-7. Settlement:
+vii. Settlement:
 
    * Waterfall applied
    * If shortfall exists → haircut executed
@@ -480,22 +480,22 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
 
 **System Response**
 
-1. State transitions:
+i. State transitions:
    `NORMAL → WARNING → DEFAULT`
 
-2. Default actions:
+ii. Default actions:
 
    * Issuer margin seized
    * Collateral unlocked for liquidation
 
-3. Auction phase:
+iii. Auction phase:
 
    * Collateral sold via periodic auctions
    * Clearing price publicly determined
 
 **Loss Allocation**
 
-4. Waterfall applied in strict order:
+iv. Waterfall applied in strict order:
 
    1. Protocol reserves
    2. Issuer margin
@@ -503,7 +503,7 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
    4. Liquidity buffers
    5. Token holder haircut
 
-5. If assets insufficient:
+v. If assets insufficient:
 
    * Proportional haircut executed
    * No priority racing
@@ -511,7 +511,7 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
 
 **Post-Default**
 
-6. Uncovered claims:
+vi. Uncovered claims:
 
    * Converted into **restructured tokens**
    * Represent off-chain recovery rights
@@ -533,20 +533,20 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
 
 **System Response**
 
-1. State transitions:
+i. State transitions:
    `NORMAL → WARNING`
 
-2. Stress throttling:
+ii. Stress throttling:
 
    * Position size limits
    * Funding rate clamps
    * Trading cadence slowed
 
-3. If drawdown deepens:
+iii. If drawdown deepens:
 
    * `WARNING → PROTECT`
 
-4. Protective mode:
+iv. Protective mode:
 
    * AMM bypassed
    * Auction-only liquidation
@@ -554,15 +554,15 @@ This section demonstrates how the protocol behaves **step-by-step** under real f
 
 **Settlement**
 
-5. Auctions executed in batches:
+v. Auctions executed in batches:
 
    * Real price discovery
    * No sandwiching
    * No MEV priority
 
-6. Waterfall applied
+vi. Waterfall applied
 
-7. Haircut if required
+vii. Haircut if required
 
 **Outcome**
 
@@ -715,7 +715,3 @@ We make it **deterministic.**
 And in financial systems,
 **determinism is trust.**
 
-## Appendix A: Design Maxim
-
-> **We do not promise no default.
-> We promise deterministic default.**
