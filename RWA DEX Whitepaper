@@ -377,7 +377,46 @@ This prevents:
 
 ---
 
-### 6.4 Haircut (Proportional Loss Allocation)
+## 6.4 Reverse Auction (Designated Buyer Settlement Window)
+
+In addition to liquidation auctions triggered by protocol failure, the system supports a proactive settlement primitive referred to as a **Reverse Auction**.
+
+A Reverse Auction allows a designated buyer to commit capital in advance and acquire RWA tokens from the AMM during a predefined settlement window.
+
+This mechanism is designed to provide deterministic demand while preventing liquidity flight or front-running during large settlement events.
+
+### Mechanism Overview
+
+1. A designated buyer commits a fixed amount of settlement currency (e.g., USDC) on-chain.
+2. The buyer specifies an execution timestamp and settlement window.
+3. During the lockup period, liquidity providers are temporarily prevented from withdrawing liquidity from the affected AMM pool.
+4. At the execution timestamp, the committed capital is exchanged against the AMM for as many RWA tokens as possible at prevailing prices.
+5. Acquired tokens may be burned or routed into protocol-defined settlement flows.
+
+### Constraints
+
+To prevent abuse, Reverse Auctions are subject to:
+
+* Maximum lockup duration
+* Cooldown periods between successive auctions
+* Explicit on-chain disclosure of buyer commitment and execution time
+* Protocol-enforced limits on frequency and size
+
+### Design Rationale
+
+Reverse Auctions provide:
+
+* Deterministic settlement demand
+* Protection against liquidity withdrawal during large buys
+* Transparent price discovery
+* Predictable system behavior under concentrated acquisition events
+
+Unlike liquidation auctions, Reverse Auctions are not triggered by protocol distress. They represent a voluntary, forward-committed settlement action that improves market stability by making large purchases explicit, scheduled, and contract-enforced.
+
+This mechanism does not alter solvency rules or failure waterfalls. It operates strictly at the DEX interaction layer as a controlled settlement window.
+
+
+### 6.5 Haircut (Proportional Loss Allocation)
 
 If total claims exceed available assets:
 
@@ -393,7 +432,7 @@ No first-come-first-served behavior is permitted.
 
 ---
 
-### 6.5 Restructuring (Post-Default Continuity)
+### 6.6 Restructuring (Post-Default Continuity)
 
 Uncovered claims are converted into **restructured tokens** representing:
 
@@ -409,7 +448,7 @@ This allows:
 
 ---
 
-### 6.6 Failure Scenario Walkthrough
+### 6.7 Failure Scenario Walkthrough
 
 This section demonstrates how the protocol behaves **step-by-step** under real failure conditions, using the mechanisms defined in Chapter 6.
 
