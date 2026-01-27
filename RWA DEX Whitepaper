@@ -377,7 +377,66 @@ This prevents:
 
 ---
 
-## 6.4 Reverse Auction (Designated Buyer Settlement Window)
+## 6.4 Flashsale (Multiparty Settlement Activation)
+
+In addition to Reverse Auctions initiated by designated buyers, the protocol supports a multiparty settlement mechanism referred to as a Flashsale.
+
+A Flashsale enables multiple participants to collectively commit capital in order to activate secondary market demand for RWA tokens within a predefined execution window.
+
+This primitive is designed to bootstrap liquidity, coordinate distributed buyers, and enable deterministic group acquisition without relying on discretionary intermediaries.
+
+### Mechanism Overview
+
+1. A Flashsale campaign is created on-chain with:
+   - Target asset
+   - Settlement currency
+   - Minimum total commitment threshold
+   - Execution timestamp
+   - Settlement window
+
+2. Participants may deposit funds into the Flashsale contract during the contribution phase.
+
+3. If the minimum threshold is reached before the execution deadline:
+   - The pooled capital is atomically routed through the AMM.
+   - RWA tokens are acquired at prevailing prices.
+   - Acquired tokens are distributed proportionally to contributors or routed into protocol-defined settlement flows.
+
+4. If the threshold is not reached:
+   - All contributions are automatically returned.
+
+### Properties
+
+- Non-custodial
+- Threshold-gated execution
+- Proportional allocation
+- Deterministic outcomes
+- Fully on-chain accounting
+
+No partial fills or discretionary execution are permitted.
+
+### Constraints
+
+Flashsales are subject to protocol-defined limits including:
+
+- Maximum campaign duration
+- Minimum and maximum raise sizes
+- Cooldown periods between campaigns on the same asset
+- Explicit disclosure of parameters prior to participation
+
+### Design Rationale
+
+Flashsales provide:
+
+- Coordinated demand discovery
+- Secondary market activation for illiquid RWA tokens
+- Transparent group participation
+- Deterministic settlement behavior
+
+Unlike Reverse Auctions, Flashsales do not rely on a single designated buyer. Instead, they allow distributed participants to collectively express demand while preserving atomic execution and predictable outcomes.
+
+This mechanism operates exclusively at the DEX interaction layer and does not modify solvency rules, waterfall ordering, or failure recovery logic.
+
+## 6.5 Reverse Auction (Designated Buyer Settlement Window)
 
 In addition to liquidation auctions triggered by protocol failure, the system supports a proactive settlement primitive referred to as a **Reverse Auction**.
 
@@ -416,7 +475,7 @@ Unlike liquidation auctions, Reverse Auctions are not triggered by protocol dist
 This mechanism does not alter solvency rules or failure waterfalls. It operates strictly at the DEX interaction layer as a controlled settlement window.
 
 
-### 6.5 Haircut (Proportional Loss Allocation)
+### 6.6 Haircut (Proportional Loss Allocation)
 
 If total claims exceed available assets:
 
@@ -432,7 +491,7 @@ No first-come-first-served behavior is permitted.
 
 ---
 
-### 6.6 Restructuring (Post-Default Continuity)
+### 6.7 Restructuring (Post-Default Continuity)
 
 Uncovered claims are converted into **restructured tokens** representing:
 
@@ -448,7 +507,7 @@ This allows:
 
 ---
 
-### 6.7 Failure Scenario Walkthrough
+### 6.8 Failure Scenario Walkthrough
 
 This section demonstrates how the protocol behaves **step-by-step** under real failure conditions, using the mechanisms defined in Chapter 6.
 
