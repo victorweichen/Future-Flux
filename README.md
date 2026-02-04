@@ -280,7 +280,7 @@ It provides a modular on-chain control plane (Vaults + Tokens + Adapters) design
 FutureFlux is designed for:
 
 - Protocol engineers building RWA or structured DeFi products  
-- Teams experimenting with tokenized revenue, yield, or asset-backed instruments  
+- Teams experimenting with tokenized economic claims, yield, or asset-backed instruments  
 - Researchers exploring hybrid on-chain / off-chain financial architectures  
 - Builders interested in programmable settlement and governance primitives  
 
@@ -310,7 +310,7 @@ This separation enables upgradeable policy, multi-asset coordination, and progra
 
 Typical applications include:
 
-- Tokenized revenue participation  
+- Tokenized off-chain economic claims  
 - RWA-backed yield instruments  
 - Basket or tranche-based products  
 - Structured issuance + redemption flows  

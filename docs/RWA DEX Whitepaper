@@ -92,10 +92,10 @@ The protocol is designed to support **generalized off-chain economic claims**, i
 • Automated repayment distribution
 • Default-triggered settlement
 
-#### 2. Revenue and Yield Sharing
+#### 2. Economic Claims and Yield Sharing
 
 • Mining yield participation
-• Infrastructure revenue splits
+• Infrastructure economic splits
 • Protocol fee sharing
 • Performance-based payouts
 
@@ -230,7 +230,7 @@ Hold and control assets that back RWA tokens.
 
 ### Clarification on Asset Custody and Vault Architecture
 
-The real-world assets (RWAs) backing the protocol (including but not limited to mining revenue streams, contractual claims, and off-chain cashflows) are **not custodied on-chain**.
+The real-world assets (RWAs) backing the protocol (including but not limited to mining yield streams, contractual claims, and off-chain cashflows) are **not custodied on-chain**.
 Legal ownership, contractual enforceability, and regulatory compliance remain strictly **off-chain**, governed by applicable legal frameworks and counterparties.
 
 The *Escrow Vault Contract* operates exclusively as an **on-chain smart contract system** responsible for:
@@ -260,7 +260,7 @@ This separation of responsibilities follows industry-standard RWA implementation
 
 • Tokenized treasury products
 • SPV-based real estate structures
-• Revenue participation instruments
+• Off-chain economic claim instruments
 
 This design ensures transparency, auditability, and deterministic enforcement on-chain,
 while preserving legal validity and regulatory compliance off-chain.
