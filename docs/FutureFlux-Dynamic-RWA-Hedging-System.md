@@ -68,4 +68,4 @@ RWA Issuance ─► RWA Monitoring Layer ─► Hedging Algorithm Engine
 ## Future Expansion
 - AI-based volatility prediction.  
 - Multi-chain hedging router for cross-asset RWAs.  
-- Integration with GPU/DePIN yield-backed RWAs.  
+- Integration with GPU/DePIN yield-backed RWAs.

@@ -1,0 +1,44 @@
+{
+  "name": "futureflux-rwa-dex",
+  "version": "0.1.0",
+  "description": "Settlement-first DEX for Real-World Assets - Fork of Uniswap v4 with RWA settlement contracts",
+  "main": "index.js",
+  "scripts": {
+    "build": "forge build && hardhat compile",
+    "test": "forge test",
+    "test:hardhat": "hardhat test",
+    "test:coverage": "forge coverage",
+    "test:fuzz": "forge test --fuzz-runs 10000",
+    "deploy:local": "forge script scripts/deploy/01_deploy_core.s.sol --rpc-url localhost:8545 --broadcast",
+    "deploy:testnet": "forge script scripts/deploy/01_deploy_core.s.sol --rpc-url sepolia --broadcast --verify",
+    "clean": "forge clean && hardhat clean",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "format": "prettier --write 'contracts/**/*.sol'",
+    "typechain": "typechain --target ethers-v6 --out-dir typechain 'artifacts/contracts/**/*.json'"
+  },
+  "keywords": [
+    "defi",
+    "dex",
+    "rwa",
+    "real-world-assets",
+    "uniswap",
+    "settlement",
+    "ethereum"
+  ],
+  "author": "FutureFlux",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "hardhat": "^2.19.4",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.5",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.10.0",
+    "typechain": "^8.3.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.0"
+  }
+}
