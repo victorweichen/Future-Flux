@@ -33,6 +33,7 @@ contract Flashsale is ReentrancyGuard {
         FlashsaleStatus status;
         uint256 totalCommitted;
         uint256 participantCount;
+        uint256 tokensDeposited;
     }
 
     struct Contribution {
@@ -47,6 +48,9 @@ contract Flashsale is ReentrancyGuard {
     mapping(uint256 => Contribution[]) public contributions;
     mapping(uint256 => mapping(address => uint256)) public contributorAmounts;
     
+    // Claim tracking
+    mapping(uint256 => mapping(address => bool)) public hasClaimed;
+
     // Global parameters
     uint256 public maxCampaignDuration;
     uint256 public minCampaignCooldown;
@@ -59,6 +63,8 @@ contract Flashsale is ReentrancyGuard {
     event FlashsaleExecuted(uint256 indexed campaignId, uint256 tokensAcquired, uint256 totalSpent);
     event FlashsaleFailed(uint256 indexed campaignId, string reason);
     event RefundIssued(uint256 indexed campaignId, address indexed contributor, uint256 amount);
+    event TokensDeposited(uint256 indexed campaignId, address indexed depositor, uint256 amount);
+    event TokensClaimed(uint256 indexed campaignId, address indexed contributor, uint256 amount);
 
     constructor() {
         maxCampaignDuration = 7 days;
@@ -103,7 +109,8 @@ contract Flashsale is ReentrancyGuard {
             endTime: endTime,
             status: FlashsaleStatus.ACTIVE,
             totalCommitted: 0,
-            participantCount: 0
+            participantCount: 0,
+            tokensDeposited: 0
         });
         
         lastCampaignTime[targetToken] = block.timestamp;
@@ -154,25 +161,39 @@ contract Flashsale is ReentrancyGuard {
     }
 
     /**
+     * @notice Deposit target tokens into a campaign for distribution
+     * @param campaignId The campaign to deposit into
+     * @param amount The amount of target tokens to deposit
+     */
+    function depositTokens(uint256 campaignId, uint256 amount) external nonReentrant {
+        FlashsaleData storage campaign = campaigns[campaignId];
+
+        require(
+            campaign.status == FlashsaleStatus.ACTIVE || campaign.status == FlashsaleStatus.THRESHOLD_MET,
+            "Flashsale: not accepting deposits"
+        );
+        require(amount > 0, "Flashsale: invalid amount");
+
+        IERC20(campaign.targetToken).safeTransferFrom(msg.sender, address(this), amount);
+        campaign.tokensDeposited += amount;
+
+        emit TokensDeposited(campaignId, msg.sender, amount);
+    }
+
+    /**
      * @notice Execute flashsale if threshold met
      */
     function execute(uint256 campaignId) external nonReentrant {
         FlashsaleData storage campaign = campaigns[campaignId];
-        
+
         require(campaign.status == FlashsaleStatus.THRESHOLD_MET, "Flashsale: threshold not met");
         require(block.timestamp >= campaign.executionTime, "Flashsale: too early");
         require(block.timestamp < campaign.endTime, "Flashsale: window expired");
-        
-        // TODO: Integrate with AMM to execute swap
-        // For now, this is a placeholder
-        uint256 tokensAcquired = 0;
-        
+        require(campaign.tokensDeposited > 0, "Flashsale: no tokens deposited");
+
         campaign.status = FlashsaleStatus.EXECUTED;
-        
-        // Distribute tokens proportionally to contributors
-        // TODO: Implement distribution logic
-        
-        emit FlashsaleExecuted(campaignId, tokensAcquired, campaign.totalCommitted);
+
+        emit FlashsaleExecuted(campaignId, campaign.tokensDeposited, campaign.totalCommitted);
     }
 
     /**
@@ -206,6 +227,28 @@ contract Flashsale is ReentrancyGuard {
         IERC20(campaign.settlementToken).safeTransfer(msg.sender, refundAmount);
         
         emit RefundIssued(campaignId, msg.sender, refundAmount);
+    }
+
+    /**
+     * @notice Claim proportional token allocation after execution
+     */
+    function claimTokens(uint256 campaignId) external nonReentrant {
+        FlashsaleData storage campaign = campaigns[campaignId];
+
+        require(campaign.status == FlashsaleStatus.EXECUTED, "Flashsale: not executed");
+        require(!hasClaimed[campaignId][msg.sender], "Flashsale: already claimed");
+
+        uint256 contribution = contributorAmounts[campaignId][msg.sender];
+        require(contribution > 0, "Flashsale: no contribution");
+
+        hasClaimed[campaignId][msg.sender] = true;
+
+        uint256 allocation = (contribution * campaign.tokensDeposited) / campaign.totalCommitted;
+        require(allocation > 0, "Flashsale: zero allocation");
+
+        IERC20(campaign.targetToken).safeTransfer(msg.sender, allocation);
+
+        emit TokensClaimed(campaignId, msg.sender, allocation);
     }
 
     /**
