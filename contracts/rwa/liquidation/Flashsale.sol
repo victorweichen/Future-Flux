@@ -4,6 +4,7 @@ pragma solidity ^0.8.26;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title Flashsale
@@ -11,8 +12,10 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * @dev Enables multiple participants to collectively commit capital
  *      for RWA token acquisition with threshold-gated execution
  */
-contract Flashsale is ReentrancyGuard {
+contract Flashsale is ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20;
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     enum FlashsaleStatus {
         ACTIVE,
@@ -51,6 +54,10 @@ contract Flashsale is ReentrancyGuard {
     // Claim tracking
     mapping(uint256 => mapping(address => bool)) public hasClaimed;
 
+    // Whitelist tracking
+    mapping(address => bool) public whitelist;
+    bool public whitelistEnabled;
+
     // Global parameters
     uint256 public maxCampaignDuration;
     uint256 public minCampaignCooldown;
@@ -65,11 +72,18 @@ contract Flashsale is ReentrancyGuard {
     event RefundIssued(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event TokensDeposited(uint256 indexed campaignId, address indexed depositor, uint256 amount);
     event TokensClaimed(uint256 indexed campaignId, address indexed contributor, uint256 amount);
+    event ParticipantWhitelisted(address indexed participant);
+    event ParticipantRemovedFromWhitelist(address indexed participant);
+    event WhitelistToggled(bool enabled);
 
     constructor() {
         maxCampaignDuration = 7 days;
         minCampaignCooldown = 1 days;
         nextCampaignId = 1;
+        whitelistEnabled = false;
+        
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(ADMIN_ROLE, msg.sender);
     }
 
     /**
@@ -133,6 +147,11 @@ contract Flashsale is ReentrancyGuard {
             campaign.totalCommitted + amount <= campaign.maxRaise,
             "Flashsale: exceeds max raise"
         );
+        
+        // Check whitelist if enabled
+        if (whitelistEnabled) {
+            require(whitelist[msg.sender], "Flashsale: not whitelisted");
+        }
         
         // Transfer settlement token
         IERC20(campaign.settlementToken).safeTransferFrom(msg.sender, address(this), amount);
@@ -306,5 +325,67 @@ contract Flashsale is ReentrancyGuard {
         return campaign.status == FlashsaleStatus.ACTIVE
             && block.timestamp >= campaign.endTime
             && campaign.totalCommitted < campaign.minThreshold;
+    }
+
+    /**
+     * @notice Add participant to whitelist
+     * @param participant Address to whitelist
+     */
+    function addToWhitelist(address participant) external onlyRole(ADMIN_ROLE) {
+        require(participant != address(0), "Flashsale: invalid address");
+        whitelist[participant] = true;
+        emit ParticipantWhitelisted(participant);
+    }
+
+    /**
+     * @notice Remove participant from whitelist
+     * @param participant Address to remove
+     */
+    function removeFromWhitelist(address participant) external onlyRole(ADMIN_ROLE) {
+        whitelist[participant] = false;
+        emit ParticipantRemovedFromWhitelist(participant);
+    }
+
+    /**
+     * @notice Batch add participants to whitelist
+     * @param participants Array of addresses to whitelist
+     */
+    function batchAddToWhitelist(address[] calldata participants) external onlyRole(ADMIN_ROLE) {
+        uint256 length = participants.length;
+        for (uint256 i = 0; i < length; i++) {
+            require(participants[i] != address(0), "Flashsale: invalid address");
+            whitelist[participants[i]] = true;
+            emit ParticipantWhitelisted(participants[i]);
+        }
+    }
+
+    /**
+     * @notice Batch remove participants from whitelist
+     * @param participants Array of addresses to remove
+     */
+    function batchRemoveFromWhitelist(address[] calldata participants) external onlyRole(ADMIN_ROLE) {
+        uint256 length = participants.length;
+        for (uint256 i = 0; i < length; i++) {
+            whitelist[participants[i]] = false;
+            emit ParticipantRemovedFromWhitelist(participants[i]);
+        }
+    }
+
+    /**
+     * @notice Toggle whitelist enforcement
+     * @param enabled Whether whitelist should be enforced
+     */
+    function toggleWhitelist(bool enabled) external onlyRole(ADMIN_ROLE) {
+        whitelistEnabled = enabled;
+        emit WhitelistToggled(enabled);
+    }
+
+    /**
+     * @notice Check if participant is whitelisted
+     * @param participant Address to check
+     * @return bool True if whitelisted
+     */
+    function isWhitelisted(address participant) external view returns (bool) {
+        return whitelist[participant];
     }
 }

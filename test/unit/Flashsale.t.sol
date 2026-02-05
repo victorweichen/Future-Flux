@@ -251,4 +251,174 @@ contract FlashsaleTest is Test {
         vm.expectRevert("Flashsale: no tokens deposited");
         flashsale.execute(campaignId);
     }
+
+    // ========== Whitelist Tests ==========
+
+    function test_AddToWhitelist() public {
+        address participant = address(0x100);
+        
+        flashsale.addToWhitelist(participant);
+        
+        assertTrue(flashsale.isWhitelisted(participant));
+    }
+
+    function test_RemoveFromWhitelist() public {
+        address participant = address(0x100);
+        
+        flashsale.addToWhitelist(participant);
+        assertTrue(flashsale.isWhitelisted(participant));
+        
+        flashsale.removeFromWhitelist(participant);
+        assertFalse(flashsale.isWhitelisted(participant));
+    }
+
+    function test_BatchAddToWhitelist() public {
+        address[] memory participants = new address[](3);
+        participants[0] = address(0x100);
+        participants[1] = address(0x101);
+        participants[2] = address(0x102);
+        
+        flashsale.batchAddToWhitelist(participants);
+        
+        assertTrue(flashsale.isWhitelisted(participants[0]));
+        assertTrue(flashsale.isWhitelisted(participants[1]));
+        assertTrue(flashsale.isWhitelisted(participants[2]));
+    }
+
+    function test_BatchRemoveFromWhitelist() public {
+        address[] memory participants = new address[](3);
+        participants[0] = address(0x100);
+        participants[1] = address(0x101);
+        participants[2] = address(0x102);
+        
+        flashsale.batchAddToWhitelist(participants);
+        flashsale.batchRemoveFromWhitelist(participants);
+        
+        assertFalse(flashsale.isWhitelisted(participants[0]));
+        assertFalse(flashsale.isWhitelisted(participants[1]));
+        assertFalse(flashsale.isWhitelisted(participants[2]));
+    }
+
+    function test_ToggleWhitelist() public {
+        assertFalse(flashsale.whitelistEnabled());
+        
+        flashsale.toggleWhitelist(true);
+        assertTrue(flashsale.whitelistEnabled());
+        
+        flashsale.toggleWhitelist(false);
+        assertFalse(flashsale.whitelistEnabled());
+    }
+
+    function test_ContributeWithWhitelistDisabled() public {
+        uint256 campaignId = _createCampaign();
+        
+        // Whitelist is disabled by default, anyone can contribute
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+        
+        assertEq(flashsale.getContributorAmount(campaignId, contributor1), 50e18);
+    }
+
+    function test_ContributeWithWhitelistEnabled() public {
+        uint256 campaignId = _createCampaign();
+        
+        // Enable whitelist and add contributor1
+        flashsale.toggleWhitelist(true);
+        flashsale.addToWhitelist(contributor1);
+        
+        // Contributor1 should be able to contribute
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+        
+        assertEq(flashsale.getContributorAmount(campaignId, contributor1), 50e18);
+    }
+
+    function test_CannotContributeWhenNotWhitelisted() public {
+        uint256 campaignId = _createCampaign();
+        
+        // Enable whitelist but don't add contributor1
+        flashsale.toggleWhitelist(true);
+        
+        // Contributor1 should NOT be able to contribute
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        vm.expectRevert("Flashsale: not whitelisted");
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+    }
+
+    function test_MultipleContributorsWithWhitelist() public {
+        uint256 campaignId = _createCampaign();
+        
+        // Enable whitelist and add both contributors
+        flashsale.toggleWhitelist(true);
+        flashsale.addToWhitelist(contributor1);
+        flashsale.addToWhitelist(contributor2);
+        
+        // Both should be able to contribute
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 75e18);
+        flashsale.contribute(campaignId, 75e18);
+        vm.stopPrank();
+        
+        vm.startPrank(contributor2);
+        settlementToken.approve(address(flashsale), 25e18);
+        flashsale.contribute(campaignId, 25e18);
+        vm.stopPrank();
+        
+        Flashsale.FlashsaleData memory campaign = flashsale.getCampaign(campaignId);
+        assertEq(campaign.totalCommitted, 100e18);
+        assertEq(campaign.participantCount, 2);
+    }
+
+    function test_CannotAddInvalidAddressToWhitelist() public {
+        vm.expectRevert("Flashsale: invalid address");
+        flashsale.addToWhitelist(address(0));
+    }
+
+    function test_CannotBatchAddInvalidAddress() public {
+        address[] memory participants = new address[](2);
+        participants[0] = address(0x100);
+        participants[1] = address(0);
+        
+        vm.expectRevert("Flashsale: invalid address");
+        flashsale.batchAddToWhitelist(participants);
+    }
+
+    function test_OnlyAdminCanAddToWhitelist() public {
+        address nonAdmin = address(0x999);
+        address participant = address(0x100);
+        
+        vm.prank(nonAdmin);
+        vm.expectRevert();
+        flashsale.addToWhitelist(participant);
+    }
+
+    function test_OnlyAdminCanToggleWhitelist() public {
+        address nonAdmin = address(0x999);
+        
+        vm.prank(nonAdmin);
+        vm.expectRevert();
+        flashsale.toggleWhitelist(true);
+    }
+
+    function test_WhitelistEventsEmitted() public {
+        address participant = address(0x100);
+        
+        vm.expectEmit(true, false, false, false);
+        emit Flashsale.ParticipantWhitelisted(participant);
+        flashsale.addToWhitelist(participant);
+        
+        vm.expectEmit(true, false, false, false);
+        emit Flashsale.ParticipantRemovedFromWhitelist(participant);
+        flashsale.removeFromWhitelist(participant);
+        
+        vm.expectEmit(false, false, false, true);
+        emit Flashsale.WhitelistToggled(true);
+        flashsale.toggleWhitelist(true);
+    }
 }
