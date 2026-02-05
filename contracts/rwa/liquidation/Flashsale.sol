@@ -327,6 +327,9 @@ contract Flashsale is ReentrancyGuard {
     /**
      * @notice Get all active campaign IDs
      * @return Array of campaign IDs that are currently active
+     * @dev Uses two-pass approach: first pass counts active campaigns to allocate
+     *      correct array size, second pass populates the array. This ensures we
+     *      don't waste gas on oversized arrays or complex dynamic array resizing.
      */
     function getActiveCampaigns() external view returns (uint256[] memory) {
         uint256 activeCount = 0;
