@@ -351,7 +351,8 @@ contract Flashsale is ReentrancyGuard, AccessControl {
      * @param participants Array of addresses to whitelist
      */
     function batchAddToWhitelist(address[] calldata participants) external onlyRole(ADMIN_ROLE) {
-        for (uint256 i = 0; i < participants.length; i++) {
+        uint256 length = participants.length;
+        for (uint256 i = 0; i < length; i++) {
             require(participants[i] != address(0), "Flashsale: invalid address");
             whitelist[participants[i]] = true;
             emit ParticipantWhitelisted(participants[i]);
@@ -363,7 +364,8 @@ contract Flashsale is ReentrancyGuard, AccessControl {
      * @param participants Array of addresses to remove
      */
     function batchRemoveFromWhitelist(address[] calldata participants) external onlyRole(ADMIN_ROLE) {
-        for (uint256 i = 0; i < participants.length; i++) {
+        uint256 length = participants.length;
+        for (uint256 i = 0; i < length; i++) {
             whitelist[participants[i]] = false;
             emit ParticipantRemovedFromWhitelist(participants[i]);
         }
