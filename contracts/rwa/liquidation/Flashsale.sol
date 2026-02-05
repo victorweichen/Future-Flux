@@ -48,8 +48,16 @@ contract Flashsale is ReentrancyGuard {
     mapping(uint256 => Contribution[]) public contributions;
     mapping(uint256 => mapping(address => uint256)) public contributorAmounts;
     
+    // Participant tracking
+    mapping(uint256 => address[]) public participants;
+    mapping(uint256 => mapping(address => bool)) public isParticipant;
+    
     // Claim tracking
     mapping(uint256 => mapping(address => bool)) public hasClaimed;
+
+    // Active campaigns tracking
+    uint256[] public activeCampaignIds;
+    mapping(uint256 => uint256) public campaignIdToIndex;
 
     // Global parameters
     uint256 public maxCampaignDuration;
@@ -65,6 +73,7 @@ contract Flashsale is ReentrancyGuard {
     event RefundIssued(uint256 indexed campaignId, address indexed contributor, uint256 amount);
     event TokensDeposited(uint256 indexed campaignId, address indexed depositor, uint256 amount);
     event TokensClaimed(uint256 indexed campaignId, address indexed contributor, uint256 amount);
+    event ParticipantJoined(uint256 indexed campaignId, address indexed participant);
 
     constructor() {
         maxCampaignDuration = 7 days;
@@ -113,6 +122,10 @@ contract Flashsale is ReentrancyGuard {
             tokensDeposited: 0
         });
         
+        // Track active campaign
+        campaignIdToIndex[campaignId] = activeCampaignIds.length;
+        activeCampaignIds.push(campaignId);
+        
         lastCampaignTime[targetToken] = block.timestamp;
         
         emit FlashsaleCreated(campaignId, targetToken, minThreshold, executionTime);
@@ -137,9 +150,12 @@ contract Flashsale is ReentrancyGuard {
         // Transfer settlement token
         IERC20(campaign.settlementToken).safeTransferFrom(msg.sender, address(this), amount);
         
-        // Track contribution
+        // Track contribution and participant
         if (contributorAmounts[campaignId][msg.sender] == 0) {
             campaign.participantCount++;
+            participants[campaignId].push(msg.sender);
+            isParticipant[campaignId][msg.sender] = true;
+            emit ParticipantJoined(campaignId, msg.sender);
         }
         
         contributorAmounts[campaignId][msg.sender] += amount;
@@ -306,5 +322,64 @@ contract Flashsale is ReentrancyGuard {
         return campaign.status == FlashsaleStatus.ACTIVE
             && block.timestamp >= campaign.endTime
             && campaign.totalCommitted < campaign.minThreshold;
+    }
+
+    /**
+     * @notice Get all active campaign IDs
+     * @return Array of campaign IDs that are currently active
+     */
+    function getActiveCampaigns() external view returns (uint256[] memory) {
+        uint256 activeCount = 0;
+        
+        // Count truly active campaigns
+        for (uint256 i = 0; i < activeCampaignIds.length; i++) {
+            uint256 campaignId = activeCampaignIds[i];
+            FlashsaleData memory campaign = campaigns[campaignId];
+            if (campaign.status == FlashsaleStatus.ACTIVE || campaign.status == FlashsaleStatus.THRESHOLD_MET) {
+                activeCount++;
+            }
+        }
+        
+        // Build array of active campaign IDs
+        uint256[] memory activeCampaigns = new uint256[](activeCount);
+        uint256 index = 0;
+        
+        for (uint256 i = 0; i < activeCampaignIds.length; i++) {
+            uint256 campaignId = activeCampaignIds[i];
+            FlashsaleData memory campaign = campaigns[campaignId];
+            if (campaign.status == FlashsaleStatus.ACTIVE || campaign.status == FlashsaleStatus.THRESHOLD_MET) {
+                activeCampaigns[index] = campaignId;
+                index++;
+            }
+        }
+        
+        return activeCampaigns;
+    }
+
+    /**
+     * @notice Get list of participants in a campaign
+     * @param campaignId The campaign to query
+     * @return Array of participant addresses
+     */
+    function getParticipants(uint256 campaignId) external view returns (address[] memory) {
+        return participants[campaignId];
+    }
+
+    /**
+     * @notice Check if an address is a participant in a campaign
+     * @param campaignId The campaign to check
+     * @param participant The address to check
+     * @return True if the address is a participant
+     */
+    function checkIsParticipant(uint256 campaignId, address participant) external view returns (bool) {
+        return isParticipant[campaignId][participant];
+    }
+
+    /**
+     * @notice Get count of all campaigns ever created
+     * @return Total number of campaigns
+     */
+    function getTotalCampaignsCount() external view returns (uint256) {
+        return nextCampaignId - 1;
     }
 }

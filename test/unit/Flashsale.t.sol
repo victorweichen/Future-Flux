@@ -251,4 +251,121 @@ contract FlashsaleTest is Test {
         vm.expectRevert("Flashsale: no tokens deposited");
         flashsale.execute(campaignId);
     }
+
+    function test_GetActiveCampaigns() public {
+        // Create multiple campaigns
+        uint256 campaign1 = _createCampaign();
+        
+        // Warp to avoid cooldown
+        vm.warp(block.timestamp + 2 days);
+        uint256 campaign2 = _createCampaign();
+
+        uint256[] memory activeCampaigns = flashsale.getActiveCampaigns();
+        
+        assertEq(activeCampaigns.length, 2);
+        assertEq(activeCampaigns[0], campaign1);
+        assertEq(activeCampaigns[1], campaign2);
+    }
+
+    function test_GetParticipants() public {
+        uint256 campaignId = _createCampaign();
+
+        // Contributor1 contributes
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+
+        // Contributor2 contributes
+        vm.startPrank(contributor2);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+
+        address[] memory participants = flashsale.getParticipants(campaignId);
+        
+        assertEq(participants.length, 2);
+        assertEq(participants[0], contributor1);
+        assertEq(participants[1], contributor2);
+    }
+
+    function test_CheckIsParticipant() public {
+        uint256 campaignId = _createCampaign();
+
+        // Before contribution
+        assertFalse(flashsale.checkIsParticipant(campaignId, contributor1));
+
+        // Contributor1 contributes
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+
+        // After contribution
+        assertTrue(flashsale.checkIsParticipant(campaignId, contributor1));
+        assertFalse(flashsale.checkIsParticipant(campaignId, contributor2));
+    }
+
+    function test_ParticipantJoinedEvent() public {
+        uint256 campaignId = _createCampaign();
+
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        
+        vm.expectEmit(true, true, false, false);
+        emit Flashsale.ParticipantJoined(campaignId, contributor1);
+        
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+    }
+
+    function test_MultipleContributionsOnlyOneParticipantEvent() public {
+        uint256 campaignId = _createCampaign();
+
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 100e18);
+        
+        // First contribution - should emit ParticipantJoined
+        flashsale.contribute(campaignId, 30e18);
+        
+        // Second contribution - should NOT emit ParticipantJoined
+        flashsale.contribute(campaignId, 20e18);
+        vm.stopPrank();
+
+        address[] memory participants = flashsale.getParticipants(campaignId);
+        assertEq(participants.length, 1);
+        assertEq(participants[0], contributor1);
+    }
+
+    function test_GetTotalCampaignsCount() public {
+        assertEq(flashsale.getTotalCampaignsCount(), 0);
+        
+        _createCampaign();
+        assertEq(flashsale.getTotalCampaignsCount(), 1);
+        
+        vm.warp(block.timestamp + 2 days);
+        _createCampaign();
+        assertEq(flashsale.getTotalCampaignsCount(), 2);
+    }
+
+    function test_ActiveCampaignsOnlyShowsActiveStatus() public {
+        uint256 campaignId = _createCampaign();
+
+        uint256[] memory activeCampaigns = flashsale.getActiveCampaigns();
+        assertEq(activeCampaigns.length, 1);
+
+        // Contribute below threshold and let it fail
+        vm.startPrank(contributor1);
+        settlementToken.approve(address(flashsale), 50e18);
+        flashsale.contribute(campaignId, 50e18);
+        vm.stopPrank();
+
+        // Warp past end time
+        vm.warp(block.timestamp + DURATION + 1);
+        flashsale.failCampaign(campaignId);
+
+        // Failed campaigns should not show in active
+        activeCampaigns = flashsale.getActiveCampaigns();
+        assertEq(activeCampaigns.length, 0);
+    }
 }
