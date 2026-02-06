@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title RestructuredToken
@@ -17,7 +17,7 @@ contract RestructuredToken is ERC20, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     
     // Reference to original RWA token
-    address public immutable originalToken;
+    address public immutable ORIGINAL_TOKEN;
     
     // Recovery tracking
     uint256 public totalOriginalClaims;
@@ -46,8 +46,8 @@ contract RestructuredToken is ERC20, AccessControl {
     ) ERC20(name, symbol) {
         require(_originalToken != address(0), "RestructuredToken: invalid original token");
         require(_totalOriginalClaims > 0, "RestructuredToken: invalid claims amount");
-        
-        originalToken = _originalToken;
+
+        ORIGINAL_TOKEN = _originalToken;
         totalOriginalClaims = _totalOriginalClaims;
         restructuringDate = block.timestamp;
         restructuringDocumentUri = _documentUri;
@@ -119,7 +119,7 @@ contract RestructuredToken is ERC20, AccessControl {
         string memory documentUri
     ) {
         return (
-            originalToken,
+            ORIGINAL_TOKEN,
             totalOriginalClaims,
             recoveryRatio,
             restructuringDate,

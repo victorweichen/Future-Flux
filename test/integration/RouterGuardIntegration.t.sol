@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../../contracts/rwa/settlement/SettlementStateMachine.sol";
-import "../../contracts/rwa/guards/RouterGuard.sol";
-import "../../contracts/rwa/oracles/OracleHealthModule.sol";
+import {Test} from "forge-std/Test.sol";
+import {SettlementStateMachine} from "../../contracts/rwa/settlement/SettlementStateMachine.sol";
+import {RouterGuard} from "../../contracts/rwa/guards/RouterGuard.sol";
+import {OracleHealthModule} from "../../contracts/rwa/oracles/OracleHealthModule.sol";
 
 contract RouterGuardTest is Test {
     RouterGuard public guard;
@@ -26,8 +26,8 @@ contract RouterGuardTest is Test {
         stateMachine.grantRole(keccak256("SETTLEMENT_ENGINE_ROLE"), settlementEngine);
     }
     
-    function test_SwapAllowedInNormalState() public {
-        (bool allowed, string memory reason) = guard.checkSwap(rwaToken, trader, 100e18);
+    function test_SwapAllowedInNormalState() public view {
+        (bool allowed, ) = guard.checkSwap(rwaToken, trader, 100e18);
         assertTrue(allowed);
     }
     

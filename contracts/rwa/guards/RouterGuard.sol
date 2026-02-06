@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../../interfaces/ISettlementStateMachine.sol";
-import "../../interfaces/IOracleHealthModule.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ISettlementStateMachine} from "../../interfaces/ISettlementStateMachine.sol";
+import {IOracleHealthModule} from "../../interfaces/IOracleHealthModule.sol";
 
 /**
  * @title RouterGuard
@@ -18,11 +18,11 @@ contract RouterGuard is AccessControl {
 
     ISettlementStateMachine public stateMachine;
     IOracleHealthModule public oracleModule;
-    
+
     // Guard parameters
     bool public guardsEnabled;
     mapping(address => bool) public exemptAddresses;
-    
+
     // Events
     event GuardsToggled(bool enabled);
     event AddressExempted(address indexed account, bool exempt);
@@ -35,44 +35,42 @@ contract RouterGuard is AccessControl {
     ) {
         stateMachine = ISettlementStateMachine(_stateMachine);
         oracleModule = IOracleHealthModule(_oracleModule);
-        
+
         _grantRole(DEFAULT_ADMIN_ROLE, _governance);
         _grantRole(GOVERNANCE_ROLE, _governance);
-        
+
         guardsEnabled = true;
     }
 
     /**
      * @notice Check if a swap is allowed
-     * @param token The RWA token being traded
      * @param sender The address initiating the swap
-     * @param amount The amount being swapped
      * @return bool True if swap is allowed
      * @return string Reason if swap is blocked
      */
     function checkSwap(
-        address token,
+        address /* token */,
         address sender,
-        uint256 amount
+        uint256 /* amount */
     ) external view returns (bool, string memory) {
         if (!guardsEnabled) return (true, "");
         if (exemptAddresses[sender]) return (true, "");
-        
+
         // Check settlement state
         if (!stateMachine.isTradingAllowed()) {
             return (false, "Trading halted - settlement state");
         }
-        
+
         // Check oracle health
         if (!oracleModule.isHealthy()) {
             return (false, "Oracle unhealthy");
         }
-        
+
         // Additional checks can be added here
         // - Position size limits
         // - Rate limiting
         // - Circuit breaker logic
-        
+
         return (true, "");
     }
 

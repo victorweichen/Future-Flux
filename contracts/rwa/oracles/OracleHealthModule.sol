@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../../interfaces/IOracleAdapter.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IOracleAdapter} from "../../interfaces/IOracleAdapter.sol";
 
 /**
  * @title OracleHealthModule

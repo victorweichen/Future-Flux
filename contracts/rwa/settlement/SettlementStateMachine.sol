@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../../interfaces/ISettlementStateMachine.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ISettlementStateMachine} from "../../interfaces/ISettlementStateMachine.sol";
 
 /**
  * @title SettlementStateMachine
@@ -25,15 +25,15 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
     }
 
     State public currentState;
-    
+
     // State transition tracking
     uint256 public lastStateChange;
     mapping(State => uint256) public stateEnterTime;
-    
+
     // Transition parameters
     uint256 public warningThreshold;      // Time in WARNING before PROTECT
     uint256 public protectCooldown;       // Min time in PROTECT before resolution
-    
+
     // State history
     struct StateTransition {
         State fromState;
@@ -48,18 +48,22 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
     event TransitionParametersUpdated(uint256 warningThreshold, uint256 protectCooldown);
 
     modifier onlyValidTransition(State newState) {
-        require(_isValidTransition(currentState, newState), "StateMachine: invalid transition");
+        _onlyValidTransition(newState);
         _;
+    }
+
+    function _onlyValidTransition(State newState) internal view {
+        require(_isValidTransition(currentState, newState), "StateMachine: invalid transition");
     }
 
     constructor(address _governance) {
         currentState = State.NORMAL;
         lastStateChange = block.timestamp;
         stateEnterTime[State.NORMAL] = block.timestamp;
-        
+
         warningThreshold = 1 hours;
         protectCooldown = 30 minutes;
-        
+
         _grantRole(DEFAULT_ADMIN_ROLE, _governance);
         _grantRole(GOVERNANCE_ROLE, _governance);
     }
@@ -77,14 +81,14 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
         currentState = newState;
         lastStateChange = block.timestamp;
         stateEnterTime[newState] = block.timestamp;
-        
+
         stateHistory.push(StateTransition({
             fromState: oldState,
             toState: newState,
             timestamp: block.timestamp,
             reason: reason
         }));
-        
+
         emit StateChanged(oldState, newState, reason);
     }
 
@@ -96,14 +100,14 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
         currentState = State.HALT;
         lastStateChange = block.timestamp;
         stateEnterTime[State.HALT] = block.timestamp;
-        
+
         stateHistory.push(StateTransition({
             fromState: oldState,
             toState: State.HALT,
             timestamp: block.timestamp,
             reason: reason
         }));
-        
+
         emit StateChanged(oldState, State.HALT, reason);
     }
 
@@ -115,32 +119,32 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
         if (from == State.NORMAL) {
             return to == State.WARNING || to == State.HALT;
         }
-        
+
         // WARNING can go to NORMAL, PROTECT, or HALT
         if (from == State.WARNING) {
             return to == State.NORMAL || to == State.PROTECT || to == State.HALT;
         }
-        
+
         // PROTECT can go to WARNING, DEFAULT, or HALT
         if (from == State.PROTECT) {
             return to == State.WARNING || to == State.DEFAULT || to == State.HALT;
         }
-        
+
         // DEFAULT can only go to RECOVERY or HALT
         if (from == State.DEFAULT) {
             return to == State.RECOVERY || to == State.HALT;
         }
-        
+
         // RECOVERY can go to NORMAL or HALT
         if (from == State.RECOVERY) {
             return to == State.NORMAL || to == State.HALT;
         }
-        
+
         // HALT is terminal unless governance intervenes
         if (from == State.HALT) {
             return to == State.NORMAL; // Only governance can restore from HALT
         }
-        
+
         return false;
     }
 
@@ -182,7 +186,7 @@ contract SettlementStateMachine is ISettlementStateMachine, AccessControl {
     ) external onlyRole(GOVERNANCE_ROLE) {
         warningThreshold = _warningThreshold;
         protectCooldown = _protectCooldown;
-        
+
         emit TransitionParametersUpdated(_warningThreshold, _protectCooldown);
     }
 

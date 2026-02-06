@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../../interfaces/IComplianceModule.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IComplianceModule} from "../../interfaces/IComplianceModule.sol";
 
 /**
  * @title RWAToken
@@ -20,19 +20,23 @@ contract RWAToken is ERC20, AccessControl {
 
     IComplianceModule public complianceModule;
     bool public transfersEnabled;
-    
+
     // Token metadata
     string public assetDescription;
     string public legalDocumentUri;
-    
+
     // Events
     event ComplianceModuleUpdated(address indexed newModule);
     event TransfersToggled(bool enabled);
     event TokenMetadataUpdated(string description, string documentUri);
 
     modifier whenTransfersEnabled() {
-        require(transfersEnabled, "RWAToken: transfers disabled");
+        _whenTransfersEnabled();
         _;
+    }
+
+    function _whenTransfersEnabled() internal view {
+        require(transfersEnabled, "RWAToken: transfers disabled");
     }
 
     constructor(
@@ -44,7 +48,7 @@ contract RWAToken is ERC20, AccessControl {
     ) ERC20(name, symbol) {
         _grantRole(DEFAULT_ADMIN_ROLE, _governance);
         _grantRole(COMPLIANCE_ADMIN_ROLE, _governance);
-        
+
         transfersEnabled = true;
         assetDescription = _assetDescription;
         legalDocumentUri = _legalDocumentUri;
@@ -75,7 +79,7 @@ contract RWAToken is ERC20, AccessControl {
         // Skip checks for minting and burning
         if (from != address(0) && to != address(0)) {
             require(transfersEnabled, "RWAToken: transfers disabled");
-            
+
             // Apply compliance module if set
             if (address(complianceModule) != address(0)) {
                 require(
@@ -84,7 +88,7 @@ contract RWAToken is ERC20, AccessControl {
                 );
             }
         }
-        
+
         super._update(from, to, amount);
     }
 

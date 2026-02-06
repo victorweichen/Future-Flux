@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "../interfaces/IComplianceModule.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {IComplianceModule} from "../interfaces/IComplianceModule.sol";
 
 /**
  * @title TransferRestriction

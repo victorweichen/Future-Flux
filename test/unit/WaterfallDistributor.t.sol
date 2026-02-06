@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../../contracts/rwa/settlement/WaterfallDistributor.sol";
+import {Test} from "forge-std/Test.sol";
+import {WaterfallDistributor} from "../../contracts/rwa/settlement/WaterfallDistributor.sol";
 
 contract WaterfallDistributorTest is Test {
     WaterfallDistributor public waterfall;
@@ -85,8 +85,6 @@ contract WaterfallDistributorTest is Test {
         vm.stopPrank();
         
         // haircut should be 80% (80% recovery)
-        uint256 expectedHaircut = (80e18 * 10000) / 100e18;
-        
         uint256 recovery = waterfall.calculateRecovery(100e18);
         assertGt(recovery, 0);
     }
@@ -112,7 +110,7 @@ contract WaterfallDistributorTest is Test {
         assertApproxEqAbs(recovery2, 45e18, 1);
     }
     
-    function test_GetTotalAvailableFunds() public {
+    function test_GetTotalAvailableFunds() public view {
         uint256 total = waterfall.getTotalAvailableFunds();
         assertEq(total, 500e18); // 100 + 200 + 150 + 50
     }

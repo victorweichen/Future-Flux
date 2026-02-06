@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "../../interfaces/ISettlementStateMachine.sol";
-import "../../interfaces/IAMMPool.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import {ISettlementStateMachine} from "../../interfaces/ISettlementStateMachine.sol";
+import {IAMMPool} from "../../interfaces/IAMMPool.sol";
 
 /**
  * @title LPSettlementClaim
@@ -38,7 +38,7 @@ contract LPSettlementClaim is AccessControl, ReentrancyGuard {
 
     // Pool registry
     mapping(address => bool) public registeredPools;
-    mapping(address => address) public poolRWAToken;
+    mapping(address => address) public poolRwaToken;
 
     // Claim tracking: user → total RWA exposure across all pools
     mapping(address => uint256) public totalUserClaims;
@@ -88,7 +88,7 @@ contract LPSettlementClaim is AccessControl, ReentrancyGuard {
         );
 
         registeredPools[pool] = true;
-        poolRWAToken[pool] = rwaToken;
+        poolRwaToken[pool] = rwaToken;
 
         emit PoolRegistered(pool, rwaToken);
     }
@@ -112,7 +112,7 @@ contract LPSettlementClaim is AccessControl, ReentrancyGuard {
         IERC20(pool).safeTransferFrom(msg.sender, address(this), lpAmount);
 
         // Calculate RWA exposure
-        uint256 rwaExposure = getRWAExposure(pool, lpAmount);
+        uint256 rwaExposure = getRwaExposure(pool, lpAmount);
         require(rwaExposure > 0, "LPSettlementClaim: zero exposure");
 
         // Record claim
@@ -159,11 +159,11 @@ contract LPSettlementClaim is AccessControl, ReentrancyGuard {
      * @param lpAmount The LP token amount
      * @return The equivalent RWA token amount
      */
-    function getRWAExposure(address pool, uint256 lpAmount) public view returns (uint256) {
+    function getRwaExposure(address pool, uint256 lpAmount) public view returns (uint256) {
         require(registeredPools[pool], "LPSettlementClaim: pool not registered");
 
         IAMMPool ammPool = IAMMPool(pool);
-        address rwaToken = poolRWAToken[pool];
+        address rwaToken = poolRwaToken[pool];
 
         (uint256 reserve0, uint256 reserve1) = ammPool.getReserves();
         uint256 lpTotalSupply = ammPool.totalSupply();

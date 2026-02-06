@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../../contracts/rwa/settlement/LPSettlementClaim.sol";
-import "../../contracts/rwa/settlement/WaterfallDistributor.sol";
-import "../../contracts/interfaces/IAMMPool.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Test} from "forge-std/Test.sol";
+import {LPSettlementClaim} from "../../contracts/rwa/settlement/LPSettlementClaim.sol";
+import {WaterfallDistributor} from "../../contracts/rwa/settlement/WaterfallDistributor.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // ─── Mock contracts ───────────────────────────────────────────────
 
@@ -152,7 +151,7 @@ contract LPSettlementClaimTest is Test {
         lpClaim.registerPool(address(ammPool), address(rwaToken));
 
         assertTrue(lpClaim.registeredPools(address(ammPool)));
-        assertEq(lpClaim.poolRWAToken(address(ammPool)), address(rwaToken));
+        assertEq(lpClaim.poolRwaToken(address(ammPool)), address(rwaToken));
     }
 
     function test_RegisterClaim() public {
@@ -178,7 +177,7 @@ contract LPSettlementClaimTest is Test {
         lpClaim.registerPool(address(ammPool), address(rwaToken));
 
         // Pool has 1000 RWA, total LP supply = 300 (100 + 200 from setUp)
-        uint256 exposure = lpClaim.getRWAExposure(address(ammPool), 100e18);
+        uint256 exposure = lpClaim.getRwaExposure(address(ammPool), 100e18);
         uint256 expectedExposure = (100e18 * 1000e18) / ammPool.totalSupply();
         assertEq(exposure, expectedExposure);
 
@@ -186,7 +185,7 @@ contract LPSettlementClaimTest is Test {
         vm.prank(governance);
         lpClaim.registerPool(address(ammPool2), address(rwaToken));
 
-        uint256 exposure2 = lpClaim.getRWAExposure(address(ammPool2), 50e18);
+        uint256 exposure2 = lpClaim.getRwaExposure(address(ammPool2), 50e18);
         uint256 expectedExposure2 = (50e18 * 600e18) / ammPool2.totalSupply();
         assertEq(exposure2, expectedExposure2);
     }

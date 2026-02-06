@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../../contracts/rwa/liquidation/ReverseAuction.sol";
-import "../../contracts/interfaces/IAMMPool.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Test} from "forge-std/Test.sol";
+import {ReverseAuction} from "../../contracts/rwa/liquidation/ReverseAuction.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // ─── Mock contracts ───────────────────────────────────────────────
 
@@ -64,13 +63,13 @@ contract MockAMMPool {
         amountOut = (amountIn * swapRate) / 10000;
 
         // Transfer tokenIn from caller
-        ERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
+        require(ERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn), "transferFrom failed");
 
         // Determine tokenOut
         address tokenOut = tokenIn == token0 ? token1 : token0;
 
         // Transfer tokenOut to caller
-        ERC20(tokenOut).transfer(msg.sender, amountOut);
+        require(ERC20(tokenOut).transfer(msg.sender, amountOut), "transfer failed");
 
         return amountOut;
     }

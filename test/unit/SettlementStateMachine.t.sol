@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "forge-std/Test.sol";
-import "../../contracts/rwa/settlement/SettlementStateMachine.sol";
+import {Test} from "forge-std/Test.sol";
+import {SettlementStateMachine} from "../../contracts/rwa/settlement/SettlementStateMachine.sol";
 
 contract SettlementStateMachineTest is Test {
     SettlementStateMachine public stateMachine;
@@ -17,7 +17,7 @@ contract SettlementStateMachineTest is Test {
         stateMachine.grantRole(keccak256("SETTLEMENT_ENGINE_ROLE"), settlementEngine);
     }
     
-    function test_InitialState() public {
+    function test_InitialState() public view {
         assertEq(stateMachine.getCurrentState(), 0); // NORMAL
     }
     
@@ -59,7 +59,7 @@ contract SettlementStateMachineTest is Test {
         );
     }
     
-    function test_TradingAllowedInNormal() public {
+    function test_TradingAllowedInNormal() public view {
         assertTrue(stateMachine.isTradingAllowed());
     }
     
