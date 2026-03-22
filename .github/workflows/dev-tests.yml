@@ -1,0 +1,63 @@
+name: Dev Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_coverage:
+        description: "Run forge coverage after tests"
+        required: false
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - ".github/workflows/dev-tests.yml"
+      - "contracts/**"
+      - "test/**"
+      - "foundry.toml"
+      - "package.json"
+      - "package-lock.json"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  forge-tests:
+    name: Forge Tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: forge test --match-path "test/unit/**" -v
+
+      - name: Run integration tests
+        run: forge test --match-path "test/integration/**" -v
+
+      - name: Run failure-scenario tests
+        run: forge test --match-path "test/failure-scenarios/**" -v
+
+      - name: Run forge coverage
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_coverage }}
+        run: forge coverage --report summary
